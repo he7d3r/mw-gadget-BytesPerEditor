@@ -1,35 +1,59 @@
-window.BytesPerEditor = {
-	run: function(){
-		var bytes = {},
-			text = '<h2>Tamanho total das contribuições de cada editor desta página</h2>';
-		//TODO: Use data from API, such as
-		//https://secure.wikimedia.org/wikibooks/pt/w/api.php?action=query&prop=revisions&rvlimit=500&titles=Logística&rvprop=user|size
-		$('#pagehistory li').each(function(){
-			var	$li = $(this),
-				user = $li.find('.history-user a:first').text(),
-				delta = parseInt($li.find('.mw-plusminus-neg, .mw-plusminus-pos, .mw-plusminus-null, .history-size').text().replace(/[^\d+-]/g, ''), 10);
+function processHistory( data ) {
+	var	revs, i, user, delta,
+		bytes = {},
+		text = '<h2>Tamanho total das contribuições de cada editor desta página</h2>';
+
+        if ( data && data.query && data.query.pages && data.query.pageids ) {
+                revs = data.query.pages[ data.query.pageids[0] ].revisions;
+		bytes[ revs[0].user ] = revs[0].size;
+		for(i=1; i<revs.length; i++){
+			user = revs[i].user;
+			delta = revs[i].size - revs[i-1].size;
 			if (bytes.hasOwnProperty(user)) {
 				bytes[user] += delta;
 			} else {
 				bytes[user] = delta;
 			}
-		});
-
-		for (var user in bytes){
-			if (bytes.hasOwnProperty(user)) {
-				text += '\n' + user + ': ' + bytes[user] + ' bytes.<br>';
-			}
 		}
+		$.each( bytes, function( user, size ){
+			text += '\n' + user + ': ' + size + ' bytes.<br>';		
+		});
 		jsMsg( text );
-	}
-};
 
-$(function(){
-	if( mw.config.get('wgAction') === 'history' ) {
-		mw.util.addPortletLink( 'p-cactions',
-			'javascript:window.BytesPerEditor.run();',
+        } else {
+                alert( 'The edit query returned an error. =(' );
+        }
+}
+
+function run(e) {
+	e.preventDefault();
+	$.ajax({
+		url: mw.util.wikiScript( 'api' ),
+		dataType: 'json',
+		data: {
+			format: 'json',
+			action: 'query',
+			prop: 'revisions',
+			titles: mw.config.get('wgPageName'),
+			indexpageids: 1,
+			rvlimit: 500,
+			rvdir: 'newer',
+			rvprop: 'user|size'
+		},
+		success: processHistory,
+		error: function() {
+			alert( 'The ajax request failed.' );
+		}
+	});
+}
+
+if( mw.config.get('wgNamespaceNumber') !== -1 ) {
+	$(function(){
+		$( mw.util.addPortletLink( 'p-cactions',
+			'#',
 			'Bytes por editor',
 			't-bytes-editor',
-			'Ver o tamanho total das contribuições de cada editor desta página');
-	}
-});
+			'Ver o tamanho total das contribuições de cada editor desta página'
+		)).click( run );
+	});
+}
