@@ -63,6 +63,9 @@ if( mw.config.get('wgNamespaceNumber') !== -1 ) {
 			'Bytes por editor',
 			't-bytes-editor',
 			'Ver o tamanho total das contribuições de cada editor desta página'
-		)).click( run );
+		)).click( function (e) {
+			e.preventDefault(); // prevent '#' from appearing in URL bar
+			mw.loader.using( 'jquery.tablesorter', run );
+		} );
 	});
 }
