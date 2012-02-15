@@ -35,7 +35,6 @@ function processHistory( data ) {
 }
 
 function run(e) {
-	e.preventDefault();
 	$.ajax({
 		url: mw.util.wikiScript( 'api' ),
 		dataType: 'json',
