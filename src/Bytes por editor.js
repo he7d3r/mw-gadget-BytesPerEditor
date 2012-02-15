@@ -1,7 +1,7 @@
 function processHistory( data ) {
 	var	revs, i, user, delta,
-		bytes = {},
-		text = '<h2>Tamanho total das contribuições de cada editor desta página</h2>';
+		bytes = {}, table = [],
+		text = '<h2>Tamanho total das contribuições de cada editor desta página</h2>\n';
 
         if ( data && data.query && data.query.pages && data.query.pageids ) {
                 revs = data.query.pages[ data.query.pageids[0] ].revisions;
@@ -16,10 +16,19 @@ function processHistory( data ) {
 			}
 		}
 		$.each( bytes, function( user, size ){
-			text += '\n' + user + ': ' + size + ' bytes.<br>';		
+			table.push(
+				'<tr><td><a href="' + mw.util.wikiGetlink( 'User:' + user ) + '">' +
+				user + '</a></td><td>' + size + '</td></tr>'
+			);
 		});
+		text += '<table class="wikitable sortable"><thead><tr>' +
+			'<th class="headerSort" title="Ordenar por ordem ascendente">Editor</th>' +
+			'<th class="headerSort" title="Ordenar por ordem ascendente">Bytes</th>' +
+			'</tr></thead><tbody>' +
+			table.join( '\n' ) +
+			'</tbody></table>';
 		jsMsg( text );
-
+		$( '#mw-js-message' ).find( 'table' ).tablesorter();
         } else {
                 alert( 'The edit query returned an error. =(' );
         }
