@@ -1,9 +1,19 @@
+/**
+ * Bytes por editor
+ * @author: [[User:Helder.wiki]]
+ * @tracking: [[Special:GlobalUsage/User:Helder.wiki/Tools/Bytes por editor.js]] ([[File:User:Helder.wiki/Tools/Bytes por editor.js]])
+ */
+/*jslint browser: true, white: true, plusplus: true, devel: true*/
+/*global jQuery, mediaWiki, jsMsg */
+( function ( $, mw ) {
+'use strict';
+
 function processHistory( data ) {
 	var	revs, i, user, delta,
 		bytes = {}, table = [],
 		text = '<h2>Tamanho total das contribuições de cada editor desta página</h2>\n';
-
-        if ( data && data.query && data.query.pages && data.query.pageids ) {
+ 
+        if ( data.query && data.query.pages && data.query.pageids ) {
                 revs = data.query.pages[ data.query.pageids[0] ].revisions;
 		bytes[ revs[0].user ] = revs[0].size;
 		for(i=1; i<revs.length; i++){
@@ -34,25 +44,20 @@ function processHistory( data ) {
         }
 }
 
-function run(e) {
-	$.ajax({
-		url: mw.util.wikiScript( 'api' ),
-		dataType: 'json',
-		data: {
-			format: 'json',
-			action: 'query',
-			prop: 'revisions',
-			titles: mw.config.get('wgPageName'),
-			indexpageids: 1,
-			rvlimit: 500,
-			rvdir: 'newer',
-			rvprop: 'user|size'
-		},
-		success: processHistory,
-		error: function() {
-			alert( 'The ajax request failed.' );
-		}
-	});
+function run() {
+	var api = new mw.Api();
+	api.get( {
+		prop: 'revisions',
+		titles: mw.config.get('wgPageName'),
+		indexpageids: 1,
+		rvlimit: 500,
+		rvdir: 'newer',
+		rvprop: 'user|size'
+	} )
+	.done( processHistory )
+	.fail( function() {
+		alert( 'The ajax request failed.' );
+	} );
 }
 
 if( mw.config.get('wgNamespaceNumber') !== -1 ) {
@@ -63,8 +68,10 @@ if( mw.config.get('wgNamespaceNumber') !== -1 ) {
 			't-bytes-editor',
 			'Ver o tamanho total das contribuições de cada editor desta página'
 		)).click( function (e) {
-			e.preventDefault(); // prevent '#' from appearing in URL bar
-			mw.loader.using( 'jquery.tablesorter', run );
+			e.preventDefault();
+			mw.loader.using( ['mediawiki.api', 'jquery.tablesorter'], run);
 		} );
 	});
 }
+
+}( jQuery, mediaWiki ) );
