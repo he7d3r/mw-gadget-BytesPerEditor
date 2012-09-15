@@ -4,8 +4,8 @@
  * @tracking: [[Special:GlobalUsage/User:Helder.wiki/Tools/Bytes por editor.js]] ([[File:User:Helder.wiki/Tools/Bytes por editor.js]])
  */
 /*jslint browser: true, white: true, plusplus: true, devel: true*/
-/*global jQuery, mediaWiki, jsMsg */
-( function ( $, mw ) {
+/*global mediaWiki, jQuery */
+( function ( mw, $ ) {
 'use strict';
 
 function processHistory( data ) {
@@ -37,8 +37,10 @@ function processHistory( data ) {
 			'</tr></thead><tbody>' +
 			table.join( '\n' ) +
 			'</tbody></table>';
-		jsMsg( text );
-		$( '#mw-js-message' ).find( 'table' ).tablesorter();
+		$('#mw-content-text')
+			.prepend( text )
+			.find( 'table' )
+			.tablesorter();
         } else {
                 alert( 'The edit query returned an error. =(' );
         }
@@ -75,4 +77,4 @@ if( mw.config.get('wgNamespaceNumber') !== -1 ) {
 	});
 }
 
-}( jQuery, mediaWiki ) );
+}( mediaWiki, jQuery ) );
