@@ -47,8 +47,7 @@ function processHistory( data ) {
 }
 
 function run() {
-	var api = new mw.Api();
-	api.get( {
+	( new mw.Api() ).get( {
 		prop: 'revisions',
 		titles: mw.config.get('wgPageName'),
 		indexpageids: 1,
