@@ -54,11 +54,10 @@ function run() {
 		rvlimit: 500,
 		rvdir: 'newer',
 		rvprop: 'user|size'
-	}, {
-		ok: processHistory,
-		err: function() {
-			alert( 'The ajax request failed.' );
-		}
+	} )
+	.done( processHistory )
+	.fail( function() {
+		alert( 'The ajax request failed.' );
 	} );
 }
 
