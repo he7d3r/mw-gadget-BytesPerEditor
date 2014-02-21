@@ -27,7 +27,7 @@ function processHistory( data ) {
 		}
 		$.each( bytes, function( user, size ){
 			table.push(
-				'<tr><td><a href="' + mw.util.wikiGetlink( 'User:' + user ) + '">' +
+				'<tr><td><a href="' + mw.util.getUrl( 'User:' + user ) + '">' +
 				user + '</a></td><td>' + size + '</td></tr>'
 			);
 		});
